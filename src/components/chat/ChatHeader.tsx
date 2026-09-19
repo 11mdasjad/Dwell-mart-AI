@@ -1,5 +1,8 @@
 'use client';
 
+import Image from 'next/image';
+import Link from 'next/link';
+
 interface ChatHeaderProps {
   onToggleSidebar: () => void;
   onClearChat: () => void;
@@ -21,15 +24,25 @@ export function ChatHeader({ onToggleSidebar, onClearChat, hasMessages }: ChatHe
           </svg>
         </button>
 
-        <div>
-          <h1 className="text-sm font-semibold text-neutral-900 sm:text-base">
-            Dwell Mart AI Assistant
-          </h1>
-          <div className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            <span className="text-[11px] text-neutral-500">Live Verified Catalog</span>
+        <Link href="/" className="flex items-center gap-3">
+          <Image
+            src="/logo.png"
+            alt="Dwell Mart"
+            width={130}
+            height={44}
+            className="h-7 sm:h-8 w-auto object-contain"
+            priority
+          />
+          <div className="hidden xs:flex items-center gap-1.5 border-l border-neutral-200 pl-3">
+            <span className="rounded-md bg-amber-50 border border-amber-200 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-amber-800">
+              AI
+            </span>
+            <div className="flex items-center gap-1.5 ml-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <span className="text-[11px] text-neutral-500">Live Verified</span>
+            </div>
           </div>
-        </div>
+        </Link>
       </div>
 
       <div className="flex items-center gap-2">

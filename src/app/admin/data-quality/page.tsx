@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface SyncMetrics {
   totalProducts: number;
@@ -91,12 +92,19 @@ export default function AdminDataQualityPage() {
       {/* Top Header */}
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center space-x-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 font-bold text-white shadow-md">
-              DM
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-slate-900">Catalog Data Quality Dashboard</h1>
+          <div className="flex items-center space-x-4">
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/logo.png"
+                alt="Dwell Mart"
+                width={130}
+                height={42}
+                className="h-9 w-auto object-contain"
+                priority
+              />
+            </Link>
+            <div className="border-l border-slate-200 pl-3">
+              <h1 className="text-lg font-bold text-slate-900">Catalog Data Quality Dashboard</h1>
               <p className="text-xs text-slate-500">100,000+ Ingestion & Grounded Knowledge Monitor</p>
             </div>
           </div>

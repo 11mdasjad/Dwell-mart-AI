@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const features = [
   {
@@ -33,14 +34,19 @@ export default function HomePage() {
       {/* ── Navigation ── */}
       <nav className="sticky top-0 z-50 border-b border-neutral-150 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-600 text-white font-bold text-sm">
-              DM
-            </div>
-            <span className="text-lg font-semibold text-neutral-900">
-              Dwell Mart <span className="text-primary-600">AI</span>
+          <Link href="/" className="flex items-center gap-2.5">
+            <Image
+              src="/logo.png"
+              alt="Dwell Mart"
+              width={160}
+              height={52}
+              className="h-9 sm:h-10 w-auto object-contain"
+              priority
+            />
+            <span className="rounded-md bg-amber-50 border border-amber-200 px-2 py-0.5 text-xs font-bold tracking-wider text-amber-800">
+              AI
             </span>
-          </div>
+          </Link>
           <div className="flex items-center gap-3">
             <Link
               href="/admin/data-quality"
@@ -196,12 +202,21 @@ export default function HomePage() {
 
       {/* ── Footer ── */}
       <footer className="border-t border-neutral-150 bg-white py-6">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-2 px-4 text-sm text-neutral-400 sm:flex-row sm:justify-between sm:px-6">
-          <p>© {new Date().getFullYear()} Dwell Mart AI Agent. Demo application.</p>
-          <p className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-success-500" />
-            Mock Mode Active
-          </p>
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 text-sm text-neutral-500 sm:flex-row sm:justify-between sm:px-6">
+          <div className="flex items-center gap-2.5">
+            <Image
+              src="/logo.png"
+              alt="Dwell Mart"
+              width={110}
+              height={36}
+              className="h-6 w-auto object-contain opacity-85"
+            />
+            <span className="text-xs text-neutral-400">© {new Date().getFullYear()} Dwell Mart AI. Grounded in dwellmart.in</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2.5 py-1 rounded-full">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            Live Catalog Grounded
+          </div>
         </div>
       </footer>
     </div>

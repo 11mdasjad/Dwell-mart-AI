@@ -4,6 +4,8 @@
 // Welcome Screen — Phase 3 Discovery Prompts
 // ===========================================
 
+import Image from 'next/image';
+
 interface WelcomeScreenProps {
   onSuggestionClick: (suggestion: string) => void;
 }
@@ -36,10 +38,18 @@ export function WelcomeScreen({ onSuggestionClick }: WelcomeScreenProps) {
     <div className="flex flex-1 items-center justify-center px-4 py-12">
       <div className="mx-auto max-w-xl text-center">
         {/* Logo */}
-        <div className="animate-scale-in mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-50 shadow-sm">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-600 text-lg font-bold text-white">
-            DM
-          </div>
+        <div className="animate-scale-in mx-auto mb-6 flex flex-col items-center justify-center">
+          <Image
+            src="/logo.png"
+            alt="Dwell Mart"
+            width={260}
+            height={90}
+            className="h-16 sm:h-20 w-auto object-contain drop-shadow-sm"
+            priority
+          />
+          <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200 px-3 py-0.5 text-xs font-semibold text-amber-800">
+            AI Shopping & Wholesale Assistant
+          </span>
         </div>
 
         <h1 className="animate-slide-up text-2xl font-bold text-neutral-900 sm:text-3xl">

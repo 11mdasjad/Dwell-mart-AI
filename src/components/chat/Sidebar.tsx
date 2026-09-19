@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Conversation } from '@/types/chat';
 import { loadConversations, deleteConversation } from '@/hooks/useChat';
 
@@ -71,12 +72,17 @@ export function Sidebar({ isOpen, onClose, onNewChat, currentConversationId }: S
       >
         {/* Header */}
         <div className="flex h-16 items-center justify-between border-b border-neutral-150 px-4">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-xs font-bold text-white">
-              DM
-            </div>
-            <span className="text-sm font-semibold text-neutral-900">
-              Dwell Mart <span className="text-primary-600">AI</span>
+          <Link href="/" className="flex items-center gap-2">
+            <Image
+              src="/logo.png"
+              alt="Dwell Mart"
+              width={140}
+              height={45}
+              className="h-8 w-auto object-contain"
+              priority
+            />
+            <span className="rounded-md bg-amber-50 border border-amber-200 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-amber-800">
+              AI
             </span>
           </Link>
 

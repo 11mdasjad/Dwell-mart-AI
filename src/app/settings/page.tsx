@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -104,7 +105,18 @@ export default function SettingsPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
               </svg>
             </Link>
-            <h1 className="text-lg font-semibold text-neutral-900">Settings</h1>
+            <Link href="/" className="flex items-center gap-2">
+              <Image
+                src="/logo.png"
+                alt="Dwell Mart"
+                width={120}
+                height={40}
+                className="h-7 w-auto object-contain"
+                priority
+              />
+            </Link>
+            <span className="text-neutral-300">/</span>
+            <h1 className="text-sm font-semibold text-neutral-900">Settings</h1>
           </div>
 
           <Link
