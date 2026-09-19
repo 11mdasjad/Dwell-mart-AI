@@ -85,6 +85,14 @@ export async function processAgentChat(
     systemInstructions += MOCK_MODE_ADDENDUM;
   }
 
+  // Detect if user is speaking in Hinglish
+  const lastUserMessage = [...safeHistory].reverse().find((m) => m.role === 'user')?.content || '';
+  const isHinglishQuery = /\b(kya|hai|hain|mujhe|dikhao|batao|chahiye|kitna|kitne|kaise|sasta|accha|achha|bhai|wapas|vapas|karein|milega|hoga|karo|bhi|nahi|nahin|aur|ke|ka|ki|ko|se|par|ye|yeh|wo|woh|kripya|namaste|shukriya|dhanyawad|order|pasand)\b/i.test(lastUserMessage);
+
+  if (isHinglishQuery) {
+    systemInstructions += `\n\n[MANDATORY LANGUAGE DIRECTIVE]: The user is speaking in Hinglish (Hindi written in English alphabet). You MUST respond completely in natural, polite, and fluent Hinglish. Explain prices, product benefits, and policies in Hinglish. DO NOT reply in pure English.`;
+  }
+
   // Prepare provider messages (untrusted client cannot inject system role)
   const aiMessages: AIProviderMessage[] = [
     { role: 'system', content: systemInstructions },

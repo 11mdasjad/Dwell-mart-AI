@@ -178,33 +178,60 @@ export class MockAIProvider implements AIProvider {
           finishReason: 'tool_calls',
         };
       }
+
+      // 4. Policy & Customer Support lookup
+      if (
+        lower.includes('return') ||
+        lower.includes('vapas') ||
+        lower.includes('wapas') ||
+        lower.includes('cancel') ||
+        lower.includes('refund') ||
+        lower.includes('delivery') ||
+        lower.includes('shipping') ||
+        lower.includes('kab tak') ||
+        lower.includes('kab aayega') ||
+        lower.includes('kitne din') ||
+        lower.includes('pincode')
+      ) {
+        return {
+          content: '',
+          toolCalls: [
+            {
+              name: 'lookupStorePolicy',
+              arguments: { query: text },
+            },
+          ],
+          finishReason: 'tool_calls',
+        };
+      }
     }
 
     // ── Conversational Responses (with clear mock label) ──
     const label = '\n\n*(Demo/Mock Mode: No live AI billing)*';
+    const isHinglish = /\b(kya|hai|hain|mujhe|dikhao|batao|chahiye|kitna|kitne|kaise|sasta|accha|achha|bhai|wapas|vapas|karein|milega|hoga|karo|bhi|nahi|nahin|aur|ke|ka|ki|ko|se|par|ye|yeh|wo|woh|kripya|namaste)\b/i.test(lower);
 
     if (lower.includes('hello') || lower.includes('hi') || lower.includes('hey') || lower.includes('namaste')) {
       return {
-        content:
-          'Hello! Welcome to Dwell Mart AI. I can assist you with product discovery, wholesale price quotes, and checking inventory across our 15 categories (including Staples, Inverters, EV Scooters, and Home products).' +
-          label,
+        content: isHinglish
+          ? 'Namaste! Dwell Mart AI Assistant mein aapka swagat hai. Main aapko products search karne, wholesale pricing dekhne aur store policies check karne mein madad kar sakta hoon. Aapko kis product ya service ke baare mein janna hai?' + label
+          : 'Hello! Welcome to Dwell Mart AI. I can assist you with product discovery, wholesale price quotes, and checking inventory across our 15 categories (including Staples, Inverters, EV Scooters, and Home products).' + label,
         finishReason: 'stop',
       };
     }
 
-    if (lower.includes('who are you') || lower.includes('what can you do')) {
+    if (lower.includes('who are you') || lower.includes('what can you do') || lower.includes('kaun ho') || lower.includes('kya kar sakte ho')) {
       return {
-        content:
-          "I am the **Dwell Mart AI Shopping & Wholesale Discovery Guide**. I'm here to help you search our catalog, check stock availability, and calculate tiered wholesale volume discounts." +
-          label,
+        content: isHinglish
+          ? "Main **Dwell Mart AI Shopping & Wholesale Discovery Guide** hoon. Main aapko catalog se products dhoondhne, stock availability check karne aur wholesale volume discounts calculate karne mein madad karta hoon." + label
+          : "I am the **Dwell Mart AI Shopping & Wholesale Discovery Guide**. I'm here to help you search our catalog, check stock availability, and calculate tiered wholesale volume discounts." + label,
         finishReason: 'stop',
       };
     }
 
     return {
-      content:
-        `Thank you for reaching out! I understand you are inquiring about "${text.slice(0, 50)}". Would you like me to search products, inspect wholesale bulk tiers, or check stock availability?` +
-        label,
+      content: isHinglish
+        ? `Aapke inquiry "${text.slice(0, 50)}" ke liye main Dwell Mart verified catalog check kar sakta hoon. Kya aap koi product dhoondhna chahte hain, wholesale bulk tiers dekhna chahte hain, ya stock check karna chahte hain?` + label
+        : `Thank you for reaching out! I understand you are inquiring about "${text.slice(0, 50)}". Would you like me to search products, inspect wholesale bulk tiers, or check stock availability?` + label,
       finishReason: 'stop',
     };
   }
@@ -212,7 +239,7 @@ export class MockAIProvider implements AIProvider {
 
 function extractSearchKeyword(message: string): string {
   const clean = message
-    .replace(/(search|find|look for|show me|do you have|can i get|products?|catalog|chahiye|dikhao|mujhe|ke liye)/gi, '')
+    .replace(/(search|find|look for|show me|do you have|can i get|products?|catalog|chahiye|dikhao|mujhe|batao|kripya|accha|achha|best|sasta|wali|wale|ke liye|ka|ki|ke|bhai|bhi)/gi, '')
     .trim();
   return clean || 'staples';
 }
