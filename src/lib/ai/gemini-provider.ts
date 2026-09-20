@@ -33,7 +33,7 @@ export class GeminiProvider implements AIProvider {
       throw new AuthenticationError('Gemini API key is missing or empty.');
     }
     this.apiKey = config.apiKey.trim();
-    this.model = config.model || 'gemini-3.6-flash';
+    this.model = config.model || 'gemini-3.5-flash-lite';
     this.timeoutMs = config.timeoutMs || 30000;
   }
 
@@ -133,12 +133,17 @@ export class GeminiProvider implements AIProvider {
       ? AbortSignal.any([timeoutSignal, signal])
       : timeoutSignal;
 
-    // Ordered list of models to try if the primary model is busy (503) or not found (404)
-    const modelsToTry = [
+    // Ordered list of models to try if the primary model is rate-limited (429), busy (503) or not found (404)
+    const fallbackCandidates = [
       activeModel,
-      activeModel !== 'gemini-flash-latest' ? 'gemini-flash-latest' : null,
-      activeModel !== 'gemini-3.5-flash' ? 'gemini-3.5-flash' : null,
-    ].filter(Boolean) as string[];
+      'gemini-3.5-flash-lite',
+      'gemini-flash-lite-latest',
+      'gemini-3-flash-preview',
+      'gemini-3.6-flash',
+      'gemini-flash-latest',
+      'gemini-3.5-flash',
+    ];
+    const modelsToTry = Array.from(new Set(fallbackCandidates.filter(Boolean))) as string[];
 
     let response: Response | null = null;
     let lastErrorMsg = '';
@@ -201,12 +206,15 @@ export class GeminiProvider implements AIProvider {
         throw new AuthenticationError('Invalid or unauthorized Gemini provider credentials.');
       }
 
-      // If 429, 503 (high demand) or 404 (model moved/deprecated), try next fallback model
+      // If 429 (rate limit / quota), 503 (high demand) or 404 (model moved/deprecated), try next fallback model
       if ((lastStatus === 429 || lastStatus === 503 || lastStatus === 404) && modelCandidate !== modelsToTry[modelsToTry.length - 1]) {
         logger.info('Retrying with fallback Gemini model', {
           failedModel: modelCandidate,
           statusCode: lastStatus,
+          errorMessage: lastErrorMsg,
         });
+        // Brief pause before trying next candidate
+        await new Promise((resolve) => setTimeout(resolve, 350));
         continue;
       }
 

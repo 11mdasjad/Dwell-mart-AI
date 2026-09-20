@@ -43,7 +43,7 @@ export function getAgentConfig(): AgentConfig {
   let model = process.env.AI_MODEL || '';
   if (!model) {
     if (targetProvider === 'gemini') {
-      model = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
+      model = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
     } else if (targetProvider === 'openai') {
       model = process.env.OPENAI_MODEL || 'gpt-4o';
     } else {

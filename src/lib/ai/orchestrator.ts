@@ -5,6 +5,7 @@
 import {
   AIProvider,
   AIProviderMessage,
+  AIProviderResponse,
   ClientMessage,
   ToolCallResult,
 } from '@/types/chat';
@@ -15,7 +16,7 @@ import { OpenAIProvider } from './openai-provider';
 import { GeminiProvider } from './gemini-provider';
 import { MockAIProvider } from './mock-provider';
 import { logger } from '@/lib/logger';
-import { AIError } from './errors';
+import { AIError, RateLimitError, ProviderUnavailableError } from './errors';
 
 export interface OrchestrationResult {
   content: string;
@@ -67,8 +68,9 @@ export async function processAgentChat(
   options?: OrchestrationOptions
 ): Promise<OrchestrationResult> {
   const startTime = Date.now();
-  const provider = resolveAIProvider();
+  let provider = resolveAIProvider();
   const isMock = isMockModeActive();
+  let isFallbackActive = false;
 
   // Enforce conversation history ceiling (max 30 messages)
   const safeHistory = messages
@@ -114,12 +116,31 @@ export async function processAgentChat(
   while (loopCount < maxLoops) {
     loopCount++;
 
-    const response = await provider.chat(
-      currentMessages,
-      toolDefinitions,
-      undefined,
-      options?.signal
-    );
+    let response: AIProviderResponse;
+    try {
+      response = await provider.chat(
+        currentMessages,
+        toolDefinitions,
+        undefined,
+        options?.signal
+      );
+    } catch (err: unknown) {
+      if ((err instanceof RateLimitError || err instanceof ProviderUnavailableError) && !isFallbackActive) {
+        logger.warn('External AI provider unavailable or rate-limited; seamlessly falling back to local catalog engine', {
+          error: (err as Error).message,
+        });
+        isFallbackActive = true;
+        provider = new MockAIProvider({ simulateLatency: false });
+        response = await provider.chat(
+          currentMessages,
+          toolDefinitions,
+          undefined,
+          options?.signal
+        );
+      } else {
+        throw err;
+      }
+    }
 
     // If no tool calls requested, we have the final assistant message
     if (!response.toolCalls || response.toolCalls.length === 0) {
@@ -128,13 +149,13 @@ export async function processAgentChat(
         event: 'chat_orchestration_complete',
         durationMs,
         toolCount: collectedToolResults.length,
-        mockMode: isMock,
+        mockMode: isMock || isFallbackActive,
       });
 
       return {
         content: response.content || 'I am here to help you with Dwell Mart wholesale.',
         toolCalls: collectedToolResults.length > 0 ? collectedToolResults : undefined,
-        mock: isMock,
+        mock: isMock || isFallbackActive,
       };
     }
 
