@@ -97,7 +97,9 @@ function WholesaleInquiryDialogInner({
               <div className="mt-2 flex justify-between items-baseline border-t border-neutral-200 pt-2">
                 <div>
                   <span className="text-neutral-500">Retail Unit: </span>
-                  <span className="font-semibold text-neutral-800">₹{product.price?.toLocaleString('en-IN') ?? 'N/A'}</span>
+                  <span className="font-semibold text-neutral-800">
+                    {typeof product.price === 'number' ? `₹${product.price.toLocaleString('en-IN')}` : 'N/A'}
+                  </span>
                 </div>
                 <div>
                   <span className="text-neutral-500">Est. Wholesale Unit: </span>

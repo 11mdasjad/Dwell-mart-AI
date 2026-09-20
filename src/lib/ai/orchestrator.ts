@@ -216,7 +216,7 @@ function formatMockToolResults(toolResults: ToolCallResult[]): string {
         parts.push(header);
 
         for (const p of data.products) {
-          const priceStr = p.price !== undefined ? `₹${p.price.toLocaleString('en-IN')}` : 'Price unlisted';
+          const priceStr = typeof p.price === 'number' ? `₹${p.price.toLocaleString('en-IN')}` : 'Price unlisted';
           const stock = p.stockStatus === 'in_stock' || p.inStock ? 'In Stock' : 'Low Stock / Order to Source';
           parts.push(`- **${p.name}** (${p.brand ? p.brand + ' · ' : ''}${p.category}) — ${priceStr} [${stock}]`);
         }
@@ -238,12 +238,14 @@ function formatMockToolResults(toolResults: ToolCallResult[]): string {
       };
       if (data.product) {
         const p = data.product;
+        const formattedPrice = typeof p.price === 'number' ? `₹${p.price.toLocaleString('en-IN')}` : 'N/A';
+        const formattedWholesale = typeof p.wholesalePrice === 'number' ? `- **Wholesale Tier Unit:** ₹${p.wholesalePrice.toLocaleString('en-IN')}\n` : '';
         parts.push(
           `### ${p.name}\n` +
           `- **Category:** ${p.category}\n` +
           `- **Brand:** ${p.brand || 'Dwell Mart'}\n` +
-          `- **Retail Price:** ₹${p.price?.toLocaleString('en-IN') ?? 'N/A'}\n` +
-          (p.wholesalePrice ? `- **Wholesale Tier Unit:** ₹${p.wholesalePrice.toLocaleString('en-IN')}\n` : '') +
+          `- **Retail Price:** ${formattedPrice}\n` +
+          formattedWholesale +
           (p.minimumOrderQuantity ? `- **MOQ:** ${p.minimumOrderQuantity} units\n` : '') +
           `- **Description:** ${p.description}`
         );
