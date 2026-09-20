@@ -32,30 +32,53 @@ export function ProductCard({ product, onInquireWholesale }: ProductCardProps) {
       badgeClass: 'bg-rose-50 text-rose-700 border-rose-200/60',
       dotClass: 'bg-rose-500',
     },
+    unavailable: {
+      label: 'Unavailable',
+      badgeClass: 'bg-neutral-50 text-neutral-600 border-neutral-200',
+      dotClass: 'bg-neutral-400',
+    },
     unknown: {
       label: 'Check Availability',
       badgeClass: 'bg-neutral-50 text-neutral-600 border-neutral-200',
       dotClass: 'bg-neutral-400',
     },
-  }[product.stockStatus || 'in_stock'];
+  }[product.stockStatus || 'in_stock'] || {
+    label: 'In Stock',
+    badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
+    dotClass: 'bg-emerald-500',
+  };
 
-  const formattedPrice = product.price !== undefined
-    ? `₹${product.price.toLocaleString('en-IN')}`
+  const rawPrice = typeof product.price === 'number' ? product.price : null;
+  const formattedPrice = rawPrice !== null
+    ? `₹${rawPrice.toLocaleString('en-IN')}`
     : 'Price unavailable';
 
-  const formattedWholesale = product.wholesalePrice !== undefined
-    ? `₹${product.wholesalePrice.toLocaleString('en-IN')}`
+  const rawWholesale = typeof product.wholesalePrice === 'number' ? product.wholesalePrice : null;
+  const formattedWholesale = rawWholesale !== null
+    ? `₹${rawWholesale.toLocaleString('en-IN')}`
     : null;
+
+  interface ExtendedProductFields {
+    image?: string;
+    url?: string;
+    moq?: number;
+    seller?: string;
+  }
+  const ext = product as unknown as ExtendedProductFields;
+  const imageSrc = product.imageUrl || ext.image || null;
+  const productLink = product.productUrl || ext.url || null;
+  const moq = product.minimumOrderQuantity || ext.moq || null;
+  const isLive = product.source === 'live' || (product.source as string) === 'VERIFIED_LIVE_DATA';
 
   return (
     <div className="group relative flex flex-col justify-between rounded-xl border border-neutral-200/80 bg-white p-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-md">
       {/* Top Media / Category Bar */}
       <div>
         <div className="relative mb-3 flex h-36 w-full items-center justify-center overflow-hidden rounded-lg bg-neutral-100/70">
-          {product.imageUrl && !imageError ? (
+          {imageSrc && !imageError ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
-              src={product.imageUrl}
+              src={imageSrc}
               alt={product.name}
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               onError={() => setImageError(true)}
@@ -68,7 +91,7 @@ export function ProductCard({ product, onInquireWholesale }: ProductCardProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
               </svg>
               <span className="mt-1 text-xs font-medium tracking-tight text-neutral-400">
-                {product.category}
+                {product.category || 'Dwell Mart Catalog'}
               </span>
             </div>
           )}
@@ -86,19 +109,19 @@ export function ProductCard({ product, onInquireWholesale }: ProductCardProps) {
           <div className="absolute top-2 right-2">
             <span
               className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
-                product.source === 'live'
+                isLive
                   ? 'bg-blue-50 text-blue-700 border border-blue-200'
                   : 'bg-neutral-100 text-neutral-500 border border-neutral-200'
               }`}
             >
-              {product.source === 'live' ? 'Live Store' : 'Mock Demo'}
+              {isLive ? 'Live Store' : 'Mock Demo'}
             </span>
           </div>
         </div>
 
         {/* Metadata */}
         <div className="mb-1 flex items-center justify-between gap-2 text-xs text-neutral-500">
-          <span className="truncate font-medium text-neutral-600">{product.brand || 'Dwell Mart'}</span>
+          <span className="truncate font-medium text-neutral-600">{product.brand || ext.seller || 'Dwell Mart'}</span>
           {product.subcategory && (
             <span className="shrink-0 text-[11px] text-neutral-400">{product.subcategory}</span>
           )}
@@ -110,9 +133,11 @@ export function ProductCard({ product, onInquireWholesale }: ProductCardProps) {
         </h4>
 
         {/* Short Description */}
-        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-neutral-500">
-          {product.description}
-        </p>
+        {product.description && (
+          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-neutral-500">
+            {product.description}
+          </p>
+        )}
       </div>
 
       {/* Pricing & Footer Actions */}
@@ -131,12 +156,12 @@ export function ProductCard({ product, onInquireWholesale }: ProductCardProps) {
           )}
         </div>
 
-        {product.minimumOrderQuantity && (
+        {moq && (
           <div className="mt-1.5 flex items-center gap-1 text-[11px] text-neutral-500">
             <svg className="h-3.5 w-3.5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
             </svg>
-            <span>MOQ: <strong>{product.minimumOrderQuantity} units</strong></span>
+            <span>MOQ: <strong>{moq} units</strong></span>
             {product.unit && <span className="text-neutral-400">({product.unit})</span>}
           </div>
         )}
@@ -151,9 +176,9 @@ export function ProductCard({ product, onInquireWholesale }: ProductCardProps) {
             Inquire Wholesale
           </button>
 
-          {product.productUrl && (
+          {productLink && (
             <a
-              href={product.productUrl}
+              href={productLink}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white p-1.5 text-neutral-600 transition-colors hover:bg-neutral-50 hover:text-neutral-900"
